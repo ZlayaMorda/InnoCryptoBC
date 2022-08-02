@@ -1,0 +1,22 @@
+{
+  "name": "innocryptobc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZlayaMorda/InnoCryptoBC.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZlayaMorda/InnoCryptoBC/issues"
+  },
+  "homepage": "https://github.com/ZlayaMorda/InnoCryptoBC#readme",
+  "devDependencies": {
+    "hardhat": "^2.10.1"
+  }
+}
