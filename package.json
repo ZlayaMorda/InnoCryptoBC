@@ -18,5 +18,10 @@
   "homepage": "https://github.com/ZlayaMorda/InnoCryptoBC#readme",
   "devDependencies": {
     "hardhat": "^2.10.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.7.2",
+    "@openzeppelin/hardhat-upgrades": "^1.19.1",
+    "dotenv": "^16.0.1"
   }
 }
