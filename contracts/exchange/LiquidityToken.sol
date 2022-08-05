@@ -9,11 +9,10 @@ contract LiquidityToken is ERC20 {
 
     constructor(
         string memory _fullName, 
-        string memory _shortName,
-        address _pull
+        string memory _shortName
         ) ERC20(_fullName, _shortName) {
 
-        pull = _pull;
+        pull = msg.sender;
     }
 
     modifier pullCaller() {
