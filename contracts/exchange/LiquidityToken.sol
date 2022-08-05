@@ -16,11 +16,19 @@ contract LiquidityToken is ERC20 {
         pull = _pull;
     }
 
-    function stacking(uint256 _amount, address _investor) external{
+    modifier pullCaller() {
         require(
             msg.sender == pull,
             "LiquidityToken:: not real pull"
         );
+        _;
+    }
+
+    function stacking(uint256 _amount, address _investor) external pullCaller{
         _mint(_investor, _amount);
+    }
+
+    function burn(uint256 _amount, address _investor) external pullCaller{
+        _burn(_investor, _amount);
     }    
 }
