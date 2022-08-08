@@ -140,31 +140,32 @@ contract LiquidityPool is Ownable {
         _transferToPull(_token1, _token2);
     }
 
-    function buyTokenThroughToken1(uint256 _token1) external getNullAmount(_token1) {
+    /**
+    @dev buy tokens2
+    @param _token1 num of token1 to sell
+    */
+    function buyTokenToken2(uint256 _token1) external getNullAmount(_token1) {
         uint256 balance_1 = _nullToOne(IToken1.balanceOf(address(this)));
         uint256 balance_2 = _nullToOne(IToken2.balanceOf(address(this)));
 
         uint256 _token2 = ((balance_2 * _token1) * (balance_1 + _token1 + 1)) 
                         / (2 * balance_1 * (balance_1 + _token1) + _token1);
 
-        uint256 commision = (_token2 + _token1) * 3 / 100;
+        _transferAndCommission(_token1, _token2);
+    }
 
-        require(
-            IToken1.balanceOf(msg.sender) > 0 && _token2 > 0 && commision > 0,
-            "LiquidityPool:: not enough tokens"
-        );
+    /**
+    @dev buy tokens1
+    @param _token2 num of token2 to sell
+    */
+    function buyTokenToken1(uint256 _token2) external getNullAmount(_token2) {
+        uint256 balance_1 = _nullToOne(IToken1.balanceOf(address(this)));
+        uint256 balance_2 = _nullToOne(IToken2.balanceOf(address(this)));
 
-        require(
-            IToken1.transferFrom(msg.sender, address(this), _token1),
-            "LiquidityPool:: transfer from contributer faild"
-        );
+        uint256 _token1 = ((balance_1 * _token2) * (balance_2 + _token2 + 1)) 
+                        / (2 * balance_2 * (balance_2 + _token2) + _token2);
 
-        require(
-                IToken2.transfer(msg.sender, _token2),
-                "LiquidityPool:: transfer faild"
-        );
-
-        _divisionCommission(commision);
+        _transferAndCommission(_token2, _token1);
     }
 
     /**
@@ -217,6 +218,36 @@ contract LiquidityPool is Ownable {
         }
     } 
 
+    /**
+    @dev transfer tokens and commission when buy
+    @param _tokenSell num of tokens to sell
+    @param _tokenBuy num of tokens to buy
+    */
+    function _transferAndCommission(uint256 _tokenSell, uint256 _tokenBuy) private {
+        uint256 commision = (_tokenBuy + _tokenSell) * 3 / 100;
+
+        require(
+            IToken1.balanceOf(msg.sender) > 0 && _tokenBuy > 0 && commision > 0,
+            "LiquidityPool:: not enough tokens"
+        );
+
+        require(
+            IToken1.transferFrom(msg.sender, address(this), _tokenSell),
+            "LiquidityPool:: transfer from contributer faild"
+        );
+
+        require(
+                IToken2.transfer(msg.sender, _tokenBuy),
+                "LiquidityPool:: transfer faild"
+        );
+
+        _divisionCommission(commision);
+    }
+
+    /**
+    @dev delete stacker from array
+    @param _stackerAddress address of the stacker
+    */
     function _deleteStacker(address _stackerAddress) private {
         uint256 len = stackers.length;
         if(len == 1) {
@@ -233,6 +264,10 @@ contract LiquidityPool is Ownable {
         }
     }
 
+    /**
+    @dev divide commission between all stackers
+    @param _amount commission for the operation
+    */
     function _divisionCommission(uint256 _amount) private {
         uint256 sum = _getLPTokenSum();
         IERC20 lpTokenErc = IERC20(liquidToken);
@@ -243,12 +278,13 @@ contract LiquidityPool is Ownable {
             if(sumToGet > 0) {
                 lpToken.stacking(sumToGet, stackers[i]);
             }
-            else {
-                lpToken.stacking(1, stackers[i]);
-            }
         }
     }
 
+    /**
+    @dev get sum of all LP tokens
+    @return sum
+    */
     function _getLPTokenSum() private view returns(uint256) {
         uint256 sum = 0;
         for(uint256 i = 0; i < stackers.length; i++) {
@@ -257,6 +293,11 @@ contract LiquidityPool is Ownable {
         return sum;
     }
 
+    /**
+    @dev check if stacker absent in the array
+    @param _stackerAddress address of the stacker
+    @return false if exist, true if not exist
+    */
     function _absentStacker(address _stackerAddress) private view returns(bool) {
         for(uint256 i = 0; i < stackers.length; i++) {
             if(stackers[i] == _stackerAddress) {
